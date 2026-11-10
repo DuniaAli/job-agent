@@ -98,7 +98,7 @@ def score_job(fact_bank, job):
 
 def check_letter(fact_bank, job, letter):
     message = prompts.build_check_message(fact_bank, job, letter)
-    reply = llm.call_claude(config.WRITING_MODEL, prompts.CHECK_SYSTEM, message, max_tokens=1500)
+    reply = llm.call_claude(config.WRITING_MODEL, prompts.CHECK_SYSTEM, message, max_tokens=3000)
     result = llm.parse_json_reply(reply)
     if result is None:
         return {"pass": False, "issues": [{"type": "style", "quote": "", "problem": "checker reply was not valid JSON", "fix": "read the letter yourself"}]}
@@ -120,7 +120,7 @@ def write_letter(fact_bank, voice_sample, job, score_result):
     Returns (letter, passed, notes).
     """
     message = prompts.build_letter_message(fact_bank, voice_sample, job, score_result)
-    letter = llm.call_claude(config.WRITING_MODEL, prompts.LETTER_SYSTEM, message, max_tokens=1500)
+    letter = llm.call_claude(config.WRITING_MODEL, prompts.LETTER_SYSTEM, message, max_tokens=4000)
     letter = llm.remove_dashes(letter)
 
     check = check_letter(fact_bank, job, letter)
@@ -129,7 +129,7 @@ def write_letter(fact_bank, voice_sample, job, score_result):
 
     print(f"  Checker found {len(check['issues'])} issue(s), revising...")
     message = prompts.build_revise_message(fact_bank, letter, check["issues"])
-    letter = llm.call_claude(config.WRITING_MODEL, prompts.REVISE_SYSTEM, message, max_tokens=1500)
+    letter = llm.call_claude(config.WRITING_MODEL, prompts.REVISE_SYSTEM, message, max_tokens=4000)
     letter = llm.remove_dashes(letter)
 
     second_check = check_letter(fact_bank, job, letter)
@@ -223,6 +223,12 @@ def command_run(limit, use_sheet):
             continue
         score = score_result["score"]
         print(f"  Score {score} ({score_result.get('verdict', '')})")
+        for reason in score_result.get("reasons", []):
+            print(f"    Why: {reason}")
+        for flag in score_result.get("red_flags", []):
+            print(f"    Red flag: {flag}")
+        for blocker in score_result.get("hard_blockers", []):
+            print(f"    Blocker: {blocker}")
 
         letter = ""
         notes = ""
@@ -310,7 +316,7 @@ def command_answer():
     context = input("Company and role (optional, press Enter to skip): ").strip()
 
     message = prompts.build_answer_message(fact_bank, voice_sample, question, context, limit)
-    answer = llm.call_claude(config.WRITING_MODEL, prompts.ANSWER_SYSTEM, message, max_tokens=1500)
+    answer = llm.call_claude(config.WRITING_MODEL, prompts.ANSWER_SYSTEM, message, max_tokens=4000)
     answer = llm.remove_dashes(answer)
     print("\n" + answer)
     print(f"\n({len(answer)} characters, {llm.count_words(answer)} words)")

@@ -27,6 +27,9 @@ def call_claude(model, system_prompt, user_message, max_tokens=2000):
         system=system_prompt,
         messages=[{"role": "user", "content": user_message}],
     )
+    print(f"  [tokens: reply used {response.usage.output_tokens} of {max_tokens} allowed, stop reason: {response.stop_reason}]")
+    if response.stop_reason == "max_tokens":
+        print(f"  WARNING: the reply from {model} was cut off (hit the {max_tokens} token limit)")
     reply_parts = []
     for block in response.content:
         if block.type == "text":

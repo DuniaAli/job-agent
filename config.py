@@ -40,6 +40,7 @@ COMPANY_BOARDS = [
     # {"company": "Example Two", "ats": "lever", "slug": "exampletwo"},
     # {"company": "Example EU", "ats": "lever_eu", "slug": "exampleeu"},
     # {"company": "Example Three", "ats": "ashby", "slug": "examplethree"},
+    {"company": "accuRx", "ats": "ashby", "slug": "accurx"},
 ]
 
 # ---------------------------------------------------------------
