@@ -72,12 +72,22 @@ def save_letter(job, letter):
 # ---------------------------------------------------------------
 def score_job(fact_bank, job):
     message = prompts.build_score_message(fact_bank, job)
-    reply = llm.call_claude(config.SCORING_MODEL, prompts.SCORE_SYSTEM, message, max_tokens=800)
-    result = llm.parse_json_reply(reply)
+    result = None
+    reply = ""
+    # Try up to two times, with plenty of room for the JSON to finish.
+    for attempt in range(2):
+        reply = llm.call_claude(config.SCORING_MODEL, prompts.SCORE_SYSTEM, message, max_tokens=2000)
+        result = llm.parse_json_reply(reply)
+        if result is not None:
+            break
+        print(f"  Could not read the score reply (attempt {attempt + 1} of 2)")
     if result is None:
-        print("  WARNING: could not read the score reply, treating as score 0")
+        print("  WARNING: still unreadable. Start of the reply was:")
+        print("  " + reply[:300].replace("\n", " "))
+        # failed=True tells the run loop NOT to mark this job as seen.
         return {"score": 0, "verdict": "skip", "reasons": ["scoring reply was not valid JSON"],
-                "red_flags": [], "hard_blockers": [], "best_hooks": [], "company_hook": ""}
+                "red_flags": [], "hard_blockers": [], "best_hooks": [], "company_hook": "",
+                "failed": True}
     # Make sure score is a number even if Claude sent "72".
     try:
         result["score"] = int(result.get("score", 0))
@@ -206,6 +216,10 @@ def command_run(limit, use_sheet):
             score_result = score_job(fact_bank, job)
         except Exception as error:
             print(f"  ERROR while scoring, skipping: {error}")
+            continue
+        if score_result.get("failed"):
+            # Do not record it, do not write it to the Sheet, try again next run.
+            print("  Skipped, will retry next run")
             continue
         score = score_result["score"]
         print(f"  Score {score} ({score_result.get('verdict', '')})")
