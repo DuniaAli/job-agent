@@ -1,0 +1,11 @@
+.env
+credentials.json
+data/seen_jobs.json
+output/
+.venv/
+__pycache__/
+.idea/
+
+.DS_Store
+data/fact_bank.md
+data/voice_sample.md
