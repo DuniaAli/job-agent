@@ -9,7 +9,9 @@ This agent does the boring half of job hunting for you:
 5. **Fact checks** every letter in a second, separate Claude pass, and revises it once if anything is wrong.
 6. **Logs** everything to your Google Sheet with the status "Ready to review".
 
-**You** read the letter, tweak it, and submit the application yourself. Then you run one command and the Sheet says "Applied".
+**You** read the letter, tweak it, and submit the application yourself. Then you press one button (or run one command) and the job is marked "Applied".
+
+There are two ways to use it: a **web page** (`streamlit run app.py`) with a review queue, an editable letter and an "I applied" button, or the **command line** (`python main.py run`). Both use the same code underneath.
 
 ```
  Adzuna / Greenhouse / Lever / Ashby
@@ -33,7 +35,10 @@ This agent does the boring half of job hunting for you:
 
 ```
 job_agent/
-  main.py            the file you run (all commands)
+  app.py             the web page (streamlit run app.py)
+  main.py            the command line version (all commands)
+  pipeline.py        the steps the web page runs, built on main.py
+  store.py           saves every scored job to data/results.json for the web page
   config.py          your searches, filters and thresholds: edit this
   prompts.py         every prompt sent to Claude
   fetchers.py        talks to the job APIs
@@ -43,7 +48,9 @@ job_agent/
   data/
     fact_bank.md     EVERYTHING the agent may say about you (most important file)
     voice_sample.md  a letter that sounds like you
+    results.json     every job the web page has scored (created automatically, private)
   output/letters/    every letter the agent writes is saved here
+  tests/             automated tests (python -m pytest tests)
   requirements.txt   libraries to install
   .env.example       template for your secret keys
 ```
@@ -207,6 +214,24 @@ python main.py run
 ---
 
 ## Step 8. Your daily routine (about 15 minutes plus applying)
+
+**Using the web page (easiest):**
+
+```
+streamlit run app.py
+```
+
+A browser tab opens. Press **Find and score new jobs** in the sidebar, wait a few minutes, then work through the queue:
+- Click a row to see why it scored what it did, the red flags, and the letter.
+- Edit the letter in the box and press **Save my edits**, or **Download .txt**.
+- **Rewrite letter** asks Claude for a fresh draft (fact checked again).
+- Apply on the company's site yourself, then press **I applied**. If "Also write to my Google Sheet" is ticked, your tracker gets a new row too.
+- **Skip this job** hides it. Set **My own verdict** on a few jobs a week to measure how well the agent judges (the sidebar shows the agreement rate).
+- The other two tabs score an advert you paste in, and answer application form questions in your voice.
+
+Press Ctrl+C in the terminal to stop the page.
+
+**Using the command line:**
 
 1. `python main.py run`
 2. Open the Sheet, filter the Status column to **Ready to review** and **Needs attention**.
