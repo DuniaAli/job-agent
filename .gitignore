@@ -9,3 +9,6 @@ __pycache__/
 .DS_Store
 data/fact_bank.md
 data/voice_sample.md
+
+data/results.json
+data/results.json.tmp
