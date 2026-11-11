@@ -14,14 +14,29 @@ WRITING_MODEL = "claude-sonnet-5-5"
 # Adzuna searches (broad coverage of UK job boards)
 # Each search is run separately. Keep the list short to save calls.
 # ---------------------------------------------------------------
+# "where" is a place name. Add "distance_miles" to search in a circle
+# around that place. Leave it out for a plain place search.
+HOME = "Watford"
+HOME_RADIUS_MILES = 30
+
 ADZUNA_SEARCHES = [
+    # London (easy to travel to)
     {"what": "graduate software engineer", "where": "London"},
     {"what": "junior software engineer", "where": "London"},
     {"what": "junior python developer", "where": "London"},
     {"what": "graduate AI engineer", "where": "London"},
     {"what": "forward deployed engineer", "where": "London"},
+    {"what": "entry level software engineer", "where": "London"},
+    {"what": "junior software developer", "where": "London"},
+    {"what": "software engineer apprentice", "where": "London"},
     {"what": "EHR analyst", "where": "London"},
     {"what": "clinical systems analyst", "where": "London"},
+    # Within 30 miles of home
+    {"what": "graduate software engineer", "where": HOME, "distance_miles": HOME_RADIUS_MILES},
+    {"what": "junior software engineer", "where": HOME, "distance_miles": HOME_RADIUS_MILES},
+    {"what": "junior python developer", "where": HOME, "distance_miles": HOME_RADIUS_MILES},
+    {"what": "graduate AI engineer", "where": HOME, "distance_miles": HOME_RADIUS_MILES},
+    {"what": "junior software developer", "where": HOME, "distance_miles": HOME_RADIUS_MILES},
 ]
 ADZUNA_MAX_DAYS_OLD = 3
 ADZUNA_RESULTS_PER_SEARCH = 50
@@ -40,7 +55,6 @@ COMPANY_BOARDS = [
     # {"company": "Example Two", "ats": "lever", "slug": "exampletwo"},
     # {"company": "Example EU", "ats": "lever_eu", "slug": "exampleeu"},
     # {"company": "Example Three", "ats": "ashby", "slug": "examplethree"},
-    {"company": "accuRx", "ats": "ashby", "slug": "accurx"},
 ]
 
 # ---------------------------------------------------------------
@@ -52,15 +66,27 @@ TITLE_INCLUDE = [
     "software", "engineer", "developer", "python", "ai ", " ai", "machine learning",
     "ml ", "data", "forward deployed", "solutions", "analyst", "ehr", "epic",
     "clinical systems", "prompt", "evaluation", "graduate", "junior", "associate",
+    "consultant", "consulting", "life sciences", "pharma", "commercial", "strategy",
+    "insights",
 ]
 TITLE_EXCLUDE = [
     "senior", "sr.", "sr ", "lead", "principal", "staff", "head of", "director",
-    "manager", "architect", "vp ", "chief", "intern ", "internship",
+    "manager", "managing", "architect", "vp ", "chief", "intern ", "internship",
     "c++", "c#", ".net", "embedded", "firmware", "ios", "android",
 ]
 LOCATION_INCLUDE = [
-    "london", "remote", "united kingdom", "uk", "england", "bracknell",
-    "reading", "berkshire", "hybrid",
+    "london", "remote", "united kingdom", "uk", "england", "hybrid",
+    # Hertfordshire and around Watford
+    "watford", "hertfordshire", "herts", "st albans", "hemel hempstead",
+    "hatfield", "welwyn", "stevenage", "hertford", "hitchin", "borehamwood",
+    "rickmansworth", "potters bar", "cheshunt", "bishop's stortford",
+    "letchworth", "harlow", "luton", "dunstable",
+    # North and west London, within about 30 miles
+    "harrow", "wembley", "uxbridge", "enfield", "barnet", "heathrow",
+    "staines", "kingston", "richmond", "ealing",
+    # Buckinghamshire, Bedfordshire and Berkshire edge
+    "amersham", "chesham", "high wycombe", "aylesbury", "milton keynes",
+    "slough", "windsor", "maidenhead", "buckinghamshire", "bucks",
 ]
 
 # ---------------------------------------------------------------

@@ -148,7 +148,14 @@ def fetch_ashby(company, slug):
 # Note: Adzuna only gives a short snippet of each advert, so scores
 # for Adzuna jobs are rougher. Always open the link before applying.
 # ---------------------------------------------------------------
-def fetch_adzuna(what, where, max_days_old, results_per_page):
+KM_PER_MILE = 1.609
+
+
+def miles_to_km(miles):
+    return int(round(miles * KM_PER_MILE))
+
+
+def fetch_adzuna(what, where, max_days_old, results_per_page, distance_miles=None):
     app_id = os.getenv("ADZUNA_APP_ID")
     app_key = os.getenv("ADZUNA_APP_KEY")
     jobs = []
@@ -165,6 +172,10 @@ def fetch_adzuna(what, where, max_days_old, results_per_page):
         "results_per_page": results_per_page,
         "content-type": "application/json",
     }
+    # Only jobs within this many miles of "where". Adzuna wants km, so convert.
+    # Leave distance_miles out for a plain place search such as "London".
+    if distance_miles is not None:
+        params["distance"] = miles_to_km(distance_miles)
     data = get_json(url, params=params)
     if data is None:
         return jobs
@@ -215,12 +226,17 @@ def fetch_all(config):
             all_jobs.append(job)
 
     for search in config.ADZUNA_SEARCHES:
-        print(f"Searching Adzuna: {search['what']} in {search['where']}...")
+        distance_miles = search.get("distance_miles")
+        if distance_miles is None:
+            print(f"Searching Adzuna: {search['what']} in {search['where']}...")
+        else:
+            print(f"Searching Adzuna: {search['what']} within {distance_miles} miles of {search['where']}...")
         found = fetch_adzuna(
             search["what"],
             search["where"],
             config.ADZUNA_MAX_DAYS_OLD,
             config.ADZUNA_RESULTS_PER_SEARCH,
+            distance_miles,
         )
         print(f"  {len(found)} jobs")
         for job in found:
